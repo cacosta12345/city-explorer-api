@@ -1,5 +1,7 @@
 'use strict';
 
+let weather = require('./data/weather.json');
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -18,6 +20,10 @@ app.get('/', (request, response) => {
 app.get("*", (request, response) => {
     response.status(404).send("Page Not Avaiable");
 });
+
+app.get('/weather', (request, response)=>{
+    let data = response.data;
+})
 
 app.use( (error, request, response, next) => {
     response.status(500).send(error.message);
