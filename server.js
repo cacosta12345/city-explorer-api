@@ -22,6 +22,7 @@ app.get("*", (request, response) => {
 });
 
 app.get('/weather', (request, response)=>{
+    let data = { message: "weather data"}
     response.json(data);
 })
 
