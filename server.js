@@ -22,7 +22,7 @@ app.get("*", (request, response) => {
 });
 
 app.get('/weather', (request, response)=>{
-    let data = response.data;
+    response.json(data);
 })
 
 app.use( (error, request, response, next) => {
