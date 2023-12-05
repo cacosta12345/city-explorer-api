@@ -17,14 +17,15 @@ app.get('/', (request, response) => {
     response.json(data);
 });
 
-app.get("*", (request, response) => {
-    response.status(404).send("Page Not Avaiable");
-});
-
 app.get('/weather', (request, response)=>{
     let data = { message: "weather data"}
     response.json(data);
 })
+
+app.get("*", (request, response) => {
+    response.status(404).send("Page Not Avaiable");
+});
+
 
 app.use( (error, request, response, next) => {
     response.status(500).send(error.message);
