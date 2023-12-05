@@ -18,8 +18,10 @@ app.get('/', (request, response) => {
 });
 
 app.get('/weather', (request, response)=>{
-    let data = { message: "weather data"}
-    response.json(data);
+    let lat = request.query.lat
+    let lon = request.query.lon
+    
+    response.json(lat, lon);
 })
 
 app.get("*", (request, response) => {
