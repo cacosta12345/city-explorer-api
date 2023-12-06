@@ -21,9 +21,14 @@ app.get('/weather', (request, response)=>{
     let lat = request.query.lat
     let lon = request.query.lon
     let city = request.query.searchQuery
-    
-    
-    response.send({lat, lon, city});
+    const cityInfo = weather.find((cityData)=>{
+       return cityData.city_name === city;
+    })
+    if(cityInfo){
+       return response.json({cityInfo})
+    }
+    response.status(404).json({error:'you done goofed'}) 
+   
 })
 
 app.get("*", (request, response) => {
