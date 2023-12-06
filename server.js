@@ -20,8 +20,10 @@ app.get('/', (request, response) => {
 app.get('/weather', (request, response)=>{
     let lat = request.query.lat
     let lon = request.query.lon
+    let city = request.query.searchQuery
     
-    response.json(lat, lon);
+    
+    response.send({lat, lon, city});
 })
 
 app.get("*", (request, response) => {
