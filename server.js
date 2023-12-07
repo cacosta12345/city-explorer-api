@@ -12,12 +12,12 @@ app.use( cors() );
 
 const PORT = process.env.PORT || 3000;
 
-// class Forecast {
-//     constructor(weatherData){
-//         this.date= weatherData.data.valid_date;
-//         this.description = weatherData.data.weather.description;
-//     }
-// }
+class Forecast {
+    constructor(weatherData){
+        this.date= weatherData.datetime;
+        this.description = weatherData.weather.description;
+    }
+}
 
 app.get('/', (request, response) => {
     let data = { message: "Hello World"};
@@ -30,7 +30,7 @@ async function getWeatherData(request,response){
     let lat = request.query.lat
     let lon = request.query.lon
     
-    let axiosResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily?',
+    let axiosResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily',
     {
         params: {
             lat: lat,
@@ -38,8 +38,15 @@ async function getWeatherData(request,response){
             key: process.env.WEATHER_API_KEY
         }
     });
+    // let weatherData = axiosResponse.data.data.map((day)=>{
+    //     return new Forecast;
+    // })
     
-    response.json(axiosResponse);
+    let dailyWeather = axiosResponse.data.data.map(day=> {
+        return new Forecast(day);
+    })
+    console.log(dailyWeather)
+    response.json(dailyWeather);
 }
 
 app.get('/')
