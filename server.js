@@ -11,11 +11,22 @@ const app = express();
 app.use( cors() );
 
 const PORT = process.env.PORT || 3000;
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const MOVIE_ACCESS_TOKEN = process.env.MOVIE_ACCESS_TOKEN;
 
 class Forecast {
     constructor(weatherData){
         this.date= weatherData.datetime;
         this.description = weatherData.weather.description;
+    }
+}
+
+class Movie {
+    constructor(movie){
+        this.title= movie.title;
+        this.releaseDate = movie.release_date;
+        this.image = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
+        this.overview = movie.overview
     }
 }
 
@@ -26,26 +37,47 @@ app.get('/', (request, response) => {
 
 app.get('/weather', getWeatherData);
 
+app.get('/movies', getMovieData);
+
+async function getMovieData(request,response){
+    let movieQuery = request.query.city
+
+    let axiosResponse = await axios.get('https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1',
+    {
+        params: {
+            query: movieQuery,
+        },
+        headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${MOVIE_ACCESS_TOKEN}`
+        }
+    });
+
+    let choiceMovie = axiosResponse.data.results.map((movie)=>{
+        return new Movie(movie);
+    })
+
+    console.log(choiceMovie);
+    response.json(choiceMovie);
+}
+
 async function getWeatherData(request,response){
     let lat = request.query.lat
     let lon = request.query.lon
     
-    let axiosResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily',
+    let weatherResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily',
     {
         params: {
             lat: lat,
             lon: lon,
-            key: process.env.WEATHER_API_KEY
+            key: WEATHER_API_KEY
         }
     });
-    // let weatherData = axiosResponse.data.data.map((day)=>{
-    //     return new Forecast;
-    // })
     
-    let dailyWeather = axiosResponse.data.data.map(day=> {
+    let dailyWeather = weatherResponse.data.data.map(day=> {
         return new Forecast(day);
     })
-    console.log(dailyWeather)
+    console.log(weatherResponse.data.data)
     response.json(dailyWeather);
 }
 
