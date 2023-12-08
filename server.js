@@ -42,7 +42,7 @@ app.get('/movies', getMovieData);
 async function getMovieData(request,response){
     let movieQuery = request.query.city
 
-    let axiosResponse = await axios.get('https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1',
+    let movieResponse = await axios.get('https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1',
     {
         params: {
             query: movieQuery,
@@ -53,11 +53,11 @@ async function getMovieData(request,response){
         }
     });
 
-    let choiceMovie = axiosResponse.data.results.map((movie)=>{
+    let choiceMovie = movieResponse.data.results.slice(Math.floor(Math.random()),10).map((movie)=>{
         return new Movie(movie);
     })
 
-    console.log(choiceMovie);
+    console.log(movieResponse.data.results);
     response.json(choiceMovie);
 }
 
@@ -77,7 +77,7 @@ async function getWeatherData(request,response){
     let dailyWeather = weatherResponse.data.data.map(day=> {
         return new Forecast(day);
     })
-    console.log(weatherResponse.data.data)
+    
     response.json(dailyWeather);
 }
 
