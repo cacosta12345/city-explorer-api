@@ -1,40 +1,32 @@
-'use strict';
+const axios = require("axios");
 
-let cache = require('./cache.js');
-
-module.exports = getWeather;
-
-function getWeather(latitude,longitude){
-    const key = 'weather-' + latitude + longitude;
-    const url = `http://api.weatherbit.io/v2.0/forecast/daily/?key=${WEATHER_API_KEY}&lang=en&lat=${lat}&lon=${lon}&days=5`;
-  
-    if (cache[key] && (Date.now() - cache[key].timestamp < 50000)) {
-      console.log('Cache hit');
-    } else {
-      console.log('Cache miss');
-      cache[key] = {};
-      cache[key].timestamp = Date.now();
-      cache[key].data = axios.get(url)
-      .then(response => parseWeather(response.data));
-    }
-    
-    return cache[key].data;
-}
-
-function parseWeather(weatherData) {
-    try {
-      const weatherSummaries = weatherData.data.map(day => {
-        return new Weather(day);
-      });
-      return Promise.resolve(weatherSummaries);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-class Weather {
+class Forecast {
     constructor(weatherData){
-        this.date= weatherData.datetime;
+        this.date = weatherData.datetime;
         this.description = weatherData.weather.description;
     }
 }
+
+async function getWeatherData(lat, lon, WEATHER_API_KEY) {
+    try {
+        const weatherResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily', {
+            params: {
+                lat: lat,
+                lon: lon,
+                key: WEATHER_API_KEY
+            }
+        });
+
+        const dailyWeather = weatherResponse.data.data.map(day => {
+            return new Forecast(day);
+        });
+
+        return dailyWeather;
+    } catch (error) {
+        throw new Error("Error fetching weather data");
+    }
+}
+
+module.exports = {
+    getWeatherData,
+};
