@@ -5,6 +5,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios")
+const weather = require('./modules/weather.js')
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.get('/', (request, response) => {
     response.json(data);
 });
 
-app.get('/weather', getWeatherData);
+app.get('/weather', weatherHandler);
 
 app.get('/movies', getMovieData);
 
@@ -61,24 +62,15 @@ async function getMovieData(request,response){
     response.json(choiceMovie);
 }
 
-async function getWeatherData(request,response){
-    let lat = request.query.lat
-    let lon = request.query.lon
+function weatherHandler(request,response){
+    const {lat,lon}= request.query;
     
-    let weatherResponse = await axios.get('https://api.weatherbit.io/v2.0/forecast/daily',
-    {
-        params: {
-            lat: lat,
-            lon: lon,
-            key: WEATHER_API_KEY
-        }
-    });
-    
-    let dailyWeather = weatherResponse.data.data.map(day=> {
-        return new Forecast(day);
-    })
-    console.log(weatherResponse.data.data)
-    response.json(dailyWeather);
+   weather(lat,lon)
+   .then(summaries => response.send(summaries))
+   .catch((error)=>{
+    console.error(error);
+    response.status(500).send('Sorry. Something went wrong. Please try again')
+   })
 }
 
 app.get('/')
