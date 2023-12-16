@@ -1,50 +1,41 @@
 'use strict';
 
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-
-const { getWeatherData } = require('./modules/weather');
-const { getMovieData } = require('./modules/movies');
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const WeatherFetcher = require('./modules/weather'); 
+const MovieFetcher = require('./modules/movies'); 
 
 const app = express();
-
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
-const MOVIE_ACCESS_TOKEN = process.env.MOVIE_ACCESS_TOKEN;
 
-app.get('/', (request, response) => {
-    let data = { message: "Hello World" };
-    response.json(data);
-});
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
-app.get('/weather', async (request, response) => {
-    const { lat, lon } = request.query;
+app.get('/weather', async (req, res) => {
+  const { lat, lon, searchQuery } = req.query;
+
+  if ((lat && lon) || searchQuery) {
     try {
-        const weatherData = await getWeatherData(lat, lon, WEATHER_API_KEY);
-        response.json(weatherData);
+      const forecasts = await WeatherFetcher.fetchWeatherData(lat, lon, searchQuery);
+      res.json(forecasts);
     } catch (error) {
-        response.status(500).send(error.message);
+      res.status(500).json({ error: error.message });
     }
+  } else {
+    res.status(400).json({ error: 'Invalid request. Please provide valid latitude and longitude or a search query.' });
+  }
 });
 
-app.get('/movies', async (request, response) => {
-    const movieQuery = request.query.city;
-    try {
-        const movieData = await getMovieData(movieQuery, MOVIE_ACCESS_TOKEN);
-        response.json(movieData);
-    } catch (error) {
-        response.status(500).send(error.message);
-    }
+app.get('/movies', async (req, res) => {
+  try {
+    const city = req.query.city;
+    const movies = await MovieFetcher.fetchMoviesByCity(city);
+    res.json(movies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.use((error, request, response, next) => {
-    response.status(500).send(error.message);
-});
-
-app.listen(
-    PORT,
-    () => console.log(`Listening on port ${PORT}`)
-);
+module.exports = app;

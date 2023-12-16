@@ -1,3 +1,4 @@
-'use strict';
+const weatherCache = {};
+const movieCache = {};
 
-module.exports = { };
+module.exports = { weatherCache, movieCache };
