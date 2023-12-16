@@ -9,7 +9,7 @@ class WeatherFetcher {
       const cacheKey = lat && lon ? `${lat}-${lon}` : searchQuery;
 
       if (weatherCache[cacheKey] && Date.now() - weatherCache[cacheKey].timestamp < 60000) {
-        console.log('Cache hit for:', cacheKey);
+        
         return weatherCache[cacheKey].data; 
       }
 
